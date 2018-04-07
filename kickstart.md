@@ -1,8 +1,27 @@
-<strong>kickstart guide</strong>  
-Windows  
-install python  
-install pip  
+<h1>kickstart guide</h1>  
+
+<h3>Windows</h3>  
+install python3  
+install pip3  
 install Flask  
+install flask_login  
+install flask_bcrypt  
+install flask_wtf
+install wtforms  
+install mysql.connecter  
+install git  
+login to git  
+clone nisbweb/nisbconnect  
+run the server python app.py  
+check the website on browser  
+make changes  
+fill the form and submit  
+
+<h3>Linux</h3>    
+install Flask  
+install flask_login  
+install flask_bcrypt  
+install flask_wtf
 install wtforms  
 install mysql.connecter  
 install git  
