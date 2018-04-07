@@ -1,6 +1,6 @@
-<h1>kickstart guide</h1>  
+# kickstart guide  
 
-##Windows  
+## Windows  
 ```
 install python3  
 install pip3  
@@ -18,7 +18,7 @@ check the website on browser
 make changes  
 fill the form and submit  
 ```
-##Linux  
+## Linux  
 ```
 install Flask  
 install flask_login  
