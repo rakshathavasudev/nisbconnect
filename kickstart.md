@@ -1,4 +1,4 @@
-kickstart guide  
+<strong>kickstart guide</strong>  
 Windows  
 install python  
 install pip  
