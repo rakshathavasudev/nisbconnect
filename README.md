@@ -10,5 +10,5 @@ NISB Connect is a Social Media Website from NISB
 # Task List
 [See Tasks](https://github.com/nisbweb/nisbconnect/blob/master/tasklist.md)
 
-#Guides and Documentations
+# Guides and Documentations
 [See Guides](https://github.com/nisbweb/nisbconnect/blob/master/guides.md)
