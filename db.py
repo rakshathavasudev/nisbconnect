@@ -18,6 +18,28 @@ def queryDB(conn,sql):
     cursor.close()
     return rows
 
+
+def user_register():
+    pass
+
+def user_login():
+    pass
+
+def like_post():
+    pass
+
+def unlike_post():
+    pass
+
+def add_post():
+    pass
+
+def remove_post():
+    pass
+
+def edit_post():
+    pass
+
 # Tables
 # members
 #     id	int(11) Auto Increment
@@ -35,7 +57,7 @@ def queryDB(conn,sql):
     # post_id	int(11)
 
 # Post
-    # user_id	int(11)	 
+    # user_id	int(11)
     # post_id	int(11) Auto Increment
     # post_title	text
     # article	mediumtext
