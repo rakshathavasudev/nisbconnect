@@ -1,0 +1,43 @@
+.detail
+{
+	padding: 5pt 10pt;
+	border: 1pt solid #ccc;
+	border-radius: 4pt;
+	display: inline-block;
+}
+
+.textonpage
+{
+	font-size: 15pt;
+	font-family: "Segoe UI"
+}
+
+.login_form_body
+{
+	margin: 10pt;
+}
+
+.title
+{
+	font-family: "Segoe UI"
+}
+
+.login_form
+{
+	display: table;
+	margin: 0 auto;
+}
+
+.outer
+{
+	display: table;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+}
+
+.middle
+{
+	display: table-cell;
+	vertical-align: middle;
+}
