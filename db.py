@@ -1,6 +1,6 @@
 import mysql.connector
 
-def connectDB(host='localhost',database='codejam',user='root',password='1234'):
+def connectDB(host='192.168.0.100',database='codejam',user='root',password='1234'):
     return mysql.connector.connect(host=host,database=database,user=user,password=password)
 
 def disconnectDB(conn):
