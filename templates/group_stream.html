@@ -16,11 +16,44 @@
     <div class="container" style="margin-top:100px; margin-bottom:200px;">
 
       <div class="row justify-content-md-center">
-        <div class="col-md-8">
+        <div class="col-md-8 ">
+          <div class="text-center">
+            <h4>{{group[1]}}</h4>
+            <small>{{group[2]}}</small><br><br>
+              <a href="/group/members/{{group[0]}}" class="btn btn-sm btn-primary">Members</a>
+            {% if session['user_id'] |string in group[3] %}
+              <a href="/group/leave/{{group[0]}}" class="btn btn-sm btn-danger">Leave</a>
+            {% else %}
+              <a href="/group/join/{{group[0]}}" class="btn btn-sm  btn-success">Join</a>
+            {% endif %}
+          </div>
+          <br><br>
+        </div>
+      </div>
 
-{% for post in allposts %}
-  {% include 'post.html' %}
-{% endfor %}
+      {% if session['user_id'] |string in group[3] %}
+      <div class="row justify-content-md-center">
+        <div class="col-md-8">
+          <form method="post" action="/addpost">
+            <input type="hidden" name="group" value="{{group[0]}}">
+            <textarea class="form-control" name="post_data" id="post_data" rows="5" cols="80" placeholder="Write something here..."></textarea>
+            <br> <button type="submit" name="submit" class="btn btn-dark btn-lg btn-block">Submit</button>
+          </form>
+        </div>
+      </div>
+
+      {% endif %}
+
+<div class="row justify-content-md-center">
+  <div class="col-md-8 ">
+    <br>
+
+
+
+        {% for post in allposts %}
+          {% include 'post.html' %}
+        {% endfor %}
+
 
 
 

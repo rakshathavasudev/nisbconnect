@@ -19,24 +19,19 @@
       <div class="row justify-content-md-center">
         <div class="col-md-6">
 
-          <h4 class="text-center">Members</h4>
+          <h4 class="text-center">Groups</h4>
+              <a class="btn btn-dark btn-sm" href="/group/create">Create Group</a><br><br>
 
           <ul class="list-group">
-          {% for member in  members %}
-
-              {% if member[0]!=session["user_id"] %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <a href="/profile/{{member[0]}}">{{ member [1] }}</a>
-                  <div class="btn-group" role="group" aria-label="Basic example">
-                    <a class="btn btn-primary btn-sm" href="/message/{{member[0]}}">Message</a>
-                    {% if is_following(session["user_id"],member[0])==0  %}
-                        <a class="btn btn-success btn-sm" href="/follow/{{member[0]}}">Follow</a>
-                    {% else %}
-                        <a class="btn btn-dark btn-sm" href="/unfollow/{{member[0]}}">Unfollow</a>
-                    {% endif %}
-                  </div>
-                </li>
-              {% endif %}
+          {% for group in  groups %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="/group/{{group[0]}}">{{ group [1] }}</a>
+                {% if session['user_id'] |string in group[3] %}
+                  <a href="/group/leave/{{group[0]}}" class="btn btn-sm btn-danger">Leave</a>
+                {% else %}
+                  <a href="/group/join/{{group[0]}}" class="btn btn-sm  btn-success">Join</a>
+                {% endif %}
+              </li>
           {% endfor %}
 
         </ul>

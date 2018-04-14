@@ -129,7 +129,8 @@ def add_user_post():
     if request.method=='POST':
         id=str(session["user_id"])
         post_data= request.form["post_data"]
-        add_post(id,post_data,'0')
+        wgroup = request.form["group"]
+        add_post(id,post_data,wgroup)
         return redirect( request.referrer)
     return render_template('index.html')
 
@@ -141,6 +142,45 @@ def edit_user_post(post_id):
         return redirect('/single/'+post_id)
     else:
         return render_template('edit_post.html',post=get_post(post_id)[0])
+
+@app.route('/group/list')
+def view_groups_list():
+    return render_template('groups_list.html',groups=get_groups_list())
+
+# Group Stream
+@app.route('/group/<group_id>')
+def view_groups_stream(group_id):
+    return render_template('group_stream.html',group=get_group_info(group_id),allposts=group_post_list(group_id))
+
+@app.route('/group/join/<group_id>')
+def join_group_page(group_id):
+    user_id = session["user_id"]
+    join_group(group_id,user_id)
+    return redirect(request.referrer)
+
+@app.route('/group/leave/<group_id>')
+def leave_group_page(group_id):
+    user_id = session["user_id"]
+    if leave_group(group_id,user_id)==0:
+        return redirect('/group/list')
+    return redirect(request.referrer)
+
+@app.route('/group/create', methods=["GET","POST"])
+def create_group_page():
+    if request.method=="POST":
+        rid = create_group(request.form["name"],request.form["desc"],session["user_id"])
+        return redirect('/group/'+rid)
+    else:
+        return render_template('group_create.html')
+
+@app.route('/group/members/<group_id>')
+def group_members_page(group_id):
+    members=[]
+    for x in get_group_members(group_id):
+        members.append(member_info(x))
+    print members
+    return render_template('members.html', members=members)
+
 
 
 

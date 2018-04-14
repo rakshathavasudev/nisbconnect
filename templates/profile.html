@@ -59,9 +59,14 @@
                   <p class="mb-1">{{cfollowing}}</p>
                 </li>
               </ul><br>
-              <a href="/userposts/{{member[0]}}" class="btn btn-lg btn-dark">Posts</a>
+              <a href="/userposts/{{member[0]}}" class="btn btn-sm btn-dark">Posts</a>
               {% if member[0]==session["user_id"] %}
-                <a href="/settings" class="btn btn-lg btn-primary">Edit</a>
+                <a href="/settings" class="btn btn-sm btn-primary">Edit</a>
+              {% endif %}
+              {% if is_following(session["user_id"],member[0])==0  %}
+                  <a class="btn btn-success btn-sm" href="/follow/{{member[0]}}">Follow</a>
+              {% else %}
+                  <a class="btn btn-dark btn-sm" href="/unfollow/{{member[0]}}">Unfollow</a>
               {% endif %}
             </div>
           </div>

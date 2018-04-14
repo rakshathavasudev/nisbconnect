@@ -10,11 +10,15 @@ def executeDB(conn,sql,values):
     cursor = conn.cursor()
     cursor.execute(sql,values)
     conn.commit()
+    return cursor.lastrowid
 
 def queryDB(conn,sql):
     cursor = conn.cursor()
     cursor.execute(sql)
-    rows = cursor.fetchall() # fetchone() , fetchmany() , fetchall()
+    try:
+        rows = cursor.fetchall() # fetchone() , fetchmany() , fetchall()
+    except:
+        rows=[]
     cursor.close()
     return rows
 
@@ -142,7 +146,7 @@ def following_list(user_id):
 
 def add_post(user_id,post_data,group):
     c = connectDB()
-    executeDB(c,"insert into posts values("+user_id+","+group+",0,%s,now())",(post_data,))
+    executeDB(c,"insert into posts values(%s,%s,0,%s,now())",(user_id,group,post_data))
     disconnectDB(c)
     return True
 
@@ -179,13 +183,13 @@ def post_list_follow(user_id):
 
 def post_list_user(user_id):
     c = connectDB()
-    result = queryDB(c,"select post_id, posts.user_id,username,article,date_time from posts,members where  wgroup=0 and posts.user_id=members.user_id and posts.user_id="+user_id);
+    result = queryDB(c,"select post_id, posts.user_id,username,article,date_time from posts,members where posts.user_id=members.user_id and posts.user_id="+user_id+" order by date_time desc");
     disconnectDB(c)
     return result
 
 def group_post_list(group):
     c = connectDB()
-    result = queryDB(c,"select post_id, posts.user_id,username,article,date_time from posts,members where posts.user_id=members.user_id and wgroup="+group)
+    result = queryDB(c,"select post_id, posts.user_id,username,article,date_time from posts,members where posts.user_id=members.user_id and wgroup="+group+ " order by date_time desc")
     disconnectDB(c)
     return result
 
@@ -210,6 +214,73 @@ def clear_messages(from_id,to_id):
     executeDB(c,"delete from messages where (from_id=%s and to_id=%s) or (from_id=%s and to_id=%s)",(from_id,to_id,to_id,from_id))
     disconnectDB(c)
     return True
+
+
+
+# group Stuff
+
+def get_groups_list():
+    c = connectDB()
+    result = queryDB(c,"select * from groups")
+    disconnectDB(c)
+    return result
+
+def get_group_info(group_id):
+    c = connectDB()
+    result = queryDB(c,"select * from groups where group_id="+group_id)
+    disconnectDB(c)
+    return result[0]
+
+def is_group_member(group_id,user_id):
+    c = connectDB()
+    result = queryDB(c,"select * from groups where members like ('%"+str(user_id)+"%') and group_id="+group_id)
+    disconnectDB(c)
+    return len(result)
+
+def get_group_members(group_id):
+    c = connectDB()
+    result = queryDB(c,"select members from groups where group_id="+group_id)
+    disconnectDB(c)
+    return result[0][0].split(",")
+
+def join_group(group_id,user_id):
+    if (is_group_member(group_id,user_id)==1):
+        return 1
+    else:
+        c = connectDB()
+        members = get_group_members(group_id)
+        members.append(str(user_id))
+        members = ",".join(members)
+        result = executeDB(c,"update groups set members=%s where group_id=%s" ,(members,group_id))
+        disconnectDB(c)
+        return 1
+
+def leave_group(group_id,user_id):
+    if (is_group_member(group_id,user_id)==0):
+        return 1
+    else:
+        c = connectDB()
+        members = get_group_members(group_id)
+        members.remove(unicode(str(user_id)))
+        if len(members)==0:
+            remove_group(group_id)
+            return 0
+        members = ",".join(members)
+        result = executeDB(c,"update `groups` set members=%s where group_id=%s" ,(members,group_id))
+        disconnectDB(c)
+        return 1
+
+def create_group(name,desc,user_id):
+    c = connectDB()
+    rowid = executeDB(c,"insert into groups values(0,%s,%s,%s)",(name,desc,str(user_id)))
+    disconnectDB(c)
+    return str(rowid)
+
+def remove_group(group_id):
+    c = connectDB()
+    executeDB(c,"delete from groups where group_id=%s",(group_id,))
+    disconnectDB(c)
+    return 1
 
 # Cleanup Tasks
 
@@ -236,6 +307,58 @@ def flush_user_likes(user_id):
     executeDB(c,"delete from likes where user_id="+str(user_id),())
     disconnectDB(c)
     return True
+
+
+
+def init_DB():
+    c = connectDB()
+    sql = '''CREATE TABLE if not exists`follow` (
+    `from_id` int(11) NOT NULL,
+    `to_id` int(11) NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1'''
+    executeDB(c,sql,())
+    sql = '''CREATE TABLE `likes` (
+    `user_id` int(11) NOT NULL AUTO_INCREMENT,
+    `post_id` int(11) NOT NULL,
+    KEY `user_id` (`user_id`),
+    KEY `post_id` (`post_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1'''
+    executeDB(c,sql,())
+    sql ='''
+    CREATE TABLE if not exists`members` (
+      `user_id` int(11) NOT NULL AUTO_INCREMENT,
+      `username` text NOT NULL,
+      `password` text NOT NULL,
+      `email` text NOT NULL,
+      `bio` text NOT NULL,
+      `dob` date NOT NULL,
+      `ieee_no` varchar(11) NOT NULL,
+      `branch` text NOT NULL,
+      `sem` varchar(11) NOT NULL,
+      PRIMARY KEY (`user_id`)
+      ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1
+    '''
+    executeDB(c,sql,())
+    sql='''CREATE TABLE if not exists`messages` (
+      `message_id` int(11) NOT NULL AUTO_INCREMENT,
+      `from_id` int(11) NOT NULL,
+      `to_id` int(11) NOT NULL,
+      `message_data` text NOT NULL,
+      `date_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (`message_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=95 DEFAULT CHARSET=latin1'''
+    executeDB(c,sql,())
+    sql='''CREATE TABLE if not exists`posts` (
+      `user_id` int(11) NOT NULL,
+      `wgroup` int(11) NOT NULL,
+      `post_id` int(11) NOT NULL AUTO_INCREMENT,
+      `article` mediumtext NOT NULL,
+      `date_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (`post_id`),
+      KEY `user_id` (`user_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1'''
+    executeDB(c,sql,())
+    disconnectDB(c)
 
 #print members_list()
 

@@ -1,0 +1,22 @@
+<div class="card">
+  <div class="card-body">
+    <h5> <a href="/profile/{{post[1]}}" style="color:black;">@{{post[2]}}</a></h5>
+    <p style="color:#444; white-space:pre-wrap;">{{post[3][:300]|safe}}</p>
+  </div>
+  <div class="card-footer text-muted" style="padding:10px;">
+    <div class="btn-group" role="group" aria-label="Basic example">
+    {% if is_liked(session["user_id"],post[0])==0 %}
+      <a href="/like/{{post[0]}}" class="btn btn-primary btn-sm" ><span class="badge badge-light">{{get_likes(post[0])}}</span> Like</a>
+    {% else %}
+      <a href="/unlike/{{post[0]}}" class="btn btn-dark btn-sm" ><span class="badge badge-light">{{get_likes(post[0])}}</span> Unlike</a>
+    {% endif %}
+      <a href="/post/single/{{post[0]}}" class="btn btn-success btn-sm">Comment</a>
+      <a href="/post/single/{{post[0]}}" class="btn btn-warning btn-sm" >View Post</a>
+      {% if session['user_id']==post[1] %}
+      <a href="/editpost/{{post[0]}}" class="btn btn-success btn-sm" >Edit</a>
+      <a href="/delete/{{post[0]}}" class="btn btn-danger btn-sm" >Delete</a>
+      {% endif %}
+    </div>
+      <small  style="color:#444;float:right;padding:.25rem .5rem;">Posted on {{post[4].strftime('%d-%m-%y')}}</small>
+  </div>
+</div><br>
