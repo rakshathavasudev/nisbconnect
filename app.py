@@ -15,9 +15,12 @@ def index():
     else:
         return redirect('/login')
 
+@app.route('/single/<post_id>')
 @app.route('/post/single/<post_id>')
 def single(post_id):
     return render_template('single.html',post = get_post(post_id)[0])
+
+
 
 @app.route('/register', methods=["POST","GET"])
 def register_page():
@@ -57,6 +60,7 @@ def logout():
 
 
 
+
 @app.route('/members/all')
 def member_page():
     result = members_list()
@@ -73,16 +77,74 @@ def member_following_page():
     return render_template('members.html', members=result)
 
 
+@app.route('/message/<user_id>',methods=["POST","GET"])
+def message_page(user_id):
+    if request.method=="POST":
+        send_message(session["user_id"],user_id,request.form["message"])
+    return render_template('message.html',user_id=user_id)
+
+@app.route('/message_list/<user_id>',methods=["POST","GET"])
+def message_list_page(user_id):
+    messages = get_messages(session["user_id"],user_id)
+    return render_template('message_list.html',messages=messages)
+
+@app.route('/message_clear/<user_id>')
+def message_clear_page(user_id):
+    messages = clear_messages(session["user_id"],user_id)
+    return redirect( request.referrer)
+
+@app.route('/profile')
+def profile_page():
+    num_followers = len(follower_list(session["user_id"]))
+    num_following = len(following_list(session["user_id"]))
+    return render_template('profile.html',member = member_info(session["user_id"]),cfollower=num_followers,cfollowing =num_following)
+
+@app.route('/profile/<user_id>')
+def profile_page_user(user_id):
+    num_followers = len(follower_list(user_id))
+    num_following = len(following_list(user_id))
+    return render_template('profile.html',member = member_info(user_id),cfollower=num_followers,cfollowing =num_following)
+
+@app.route('/userposts/<user_id>')
+def user_posts_page(user_id):
+    return render_template('user_posts.html',allposts = post_list_user(user_id))
+
+@app.route('/settings', methods=["POST","GET"])
+def settings_page():
+    if request.method=="POST":
+        username=request.form["username"]
+        email=request.form["email"]
+        bio=request.form["bio"]
+        dob=request.form["dob"]
+        ieee_no=request.form["ieee_no"]
+        branch=request.form["branch"]
+        sem=request.form["sem"]
+        user_update(username,email,bio,dob,ieee_no,branch,sem)
+        return redirect('/profile')
+    return render_template('settings.html',member=member_info(session["user_id"]))
+
 @app.route('/addpost',methods=["GET","POST"])
 def add_user_post():
     if request.method=='POST':
         id=str(session["user_id"])
         post_data= request.form["post_data"]
         add_post(id,post_data,'0')
-        return "Posted"
+        return redirect( request.referrer)
+    return render_template('index.html')
+
+@app.route('/editpost/<post_id>',methods=["GET","POST"])
+def edit_user_post(post_id):
+    if request.method=="POST":
+        post_id = request.form["post_id"]
+        edit_post(request.form["post_data"],post_id)
+        return redirect('/single/'+post_id)
     else:
-        return render_template('addpost.html')
-    return render_template('addpost.html')
+        return render_template('edit_post.html',post=get_post(post_id)[0])
+
+
+
+
+# Redirecting Functions
 
 @app.route('/follow/<user_id>')
 def follow_page(user_id):
@@ -110,6 +172,10 @@ def unlike(post_id):
     unlike_post(user_id,post_id)
     return redirect( request.referrer)
 
+@app.route('/delete/<post_id>')
+def delete(post_id):
+    remove_post(post_id)
+    return redirect( request.referrer)
 
 # @app.route('/logout')
 # def layout_page():

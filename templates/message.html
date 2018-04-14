@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>NISB Connect</title>
+  </head>
+  <body>
+
+    {% include 'nav.html' %}
+    <div class="container" style="margin-top:100px; margin-bottom:200px;">
+
+<div class="row justify-content-md-center">
+  <div class="col-md-8">
+    <a href="/message_clear/{{user_id}}" class="btn btn-sm btn-danger">Clear Messages</a><br><br>
+    <p id="messages"></p>
+
+    <form action="/message/{{user_id}}" method="post" class="inline-form" id="send_message_form">
+      <input class="form-control form-control-lg" type="text" name="message" id="message_txt" placeholder="Enter Message">
+    </form>
+
+
+  </div>
+</div>
+    <!-- Container end -->
+</div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+        <script type="text/javascript">
+
+        $('#send_message_form').submit(function(event){
+          event.preventDefault();
+          $.post("/message/{{user_id}}", {message: $('#message_txt').val()}, function(result){
+            $('#message_txt').val("");
+          });
+        });
+        var olddata='';
+        setInterval( function(){
+          $.get( "/message_list/{{user_id}}", function( data ) {
+            if (data!=olddata){
+              olddata=data;
+              $( "#messages" ).html( data );
+              window.scrollTo(0,document.body.scrollHeight);
+            }
+          });
+        }
+        ,800);
+        </script>
+  </body>
+</html>

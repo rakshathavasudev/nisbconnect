@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>NISB Connect</title>
+  </head>
+  <body>
+
+    {% include 'nav.html' %}
+    <div class="container" style="margin-top:100px; margin-bottom:200px;">
+
+      <div class="row justify-content-md-center">
+        <div class="col-md-8">
+
+{% for post in allposts %}
+  <div class="card">
+    <div class="card-body">
+      <h5> <a href="/profile/{{post[1]}}" style="color:black;">@{{post[2]}}</a></h5>
+      <p style="color:#444; white-space:pre-wrap;">{{post[3][:300]|safe}}...</p>
+
+    </div>
+    <div class="card-footer text-muted" style="padding:10px;">
+      {% if is_liked(session["user_id"],post[0])==0 %}
+        <a href="/like/{{post[0]}}" class="btn btn-primary btn-sm" ><span class="badge badge-light">{{get_likes(post[0])}}</span> Like</a>
+      {% else %}
+        <a href="/unlike/{{post[0]}}" class="btn btn-dark btn-sm" ><span class="badge badge-light">{{get_likes(post[0])}}</span> Unlike</a>
+      {% endif %}
+        <a href="/post/single/{{post[0]}}" class="btn btn-primary btn-sm">Comment</a>
+        <a href="/post/single/{{post[0]}}" class="btn btn-warning btn-sm" >View Post</a>
+        {% if session['user_id']==post[1] %}
+        <a href="/editpost/{{post[0]}}" class="btn btn-primary btn-sm" >Edit</a>
+        <a href="/delete/{{post[0]}}" class="btn btn-danger btn-sm" >Delete</a>
+        {% endif %}
+        <small  style="color:#444;float:right;padding:.25rem .5rem;">Posted on {{post[4].strftime('%d-%m-%y')}}</small>
+    </div>
+  </div><br>
+{% endfor %}
+
+
+
+  </div>
+</div>
+    <!-- Container end -->
+</div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  </body>
+</html>

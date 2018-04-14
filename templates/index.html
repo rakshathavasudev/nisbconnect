@@ -17,7 +17,7 @@
 
       <div class="row justify-content-md-center">
         <div class="col-md-8">
-          <form method="post" id="postform">
+          <form method="post" action="/addpost">
             <textarea class="form-control" name="post_data" id="post_data" rows="5" cols="80" placeholder="Write something here..."></textarea>
             <br> <button type="submit" name="submit" class="btn btn-dark btn-lg btn-block">Submit</button>
           </form>
@@ -47,10 +47,8 @@
         {% for post in allposts %}
           <div class="card">
             <div class="card-body">
-              <h5> <a href="/post/single/{{post[0]}}" style="color:black;">@{{post[2]}}</a></h5>
-              <p style="color:#444;">{{post[3][:100]}}...
-
-              </p>
+              <h5> <a href="/profile/{{post[1]}}" style="color:black;">@{{post[2]}}</a></h5>
+              <p style="color:#444; white-space:pre-wrap;">{{post[3][:300]|safe}}...</p>
 
             </div>
             <div class="card-footer text-muted" style="padding:10px;">
@@ -61,6 +59,10 @@
               {% endif %}
                 <a href="/post/single/{{post[0]}}" class="btn btn-primary btn-sm">Comment</a>
                 <a href="/post/single/{{post[0]}}" class="btn btn-warning btn-sm" >View Post</a>
+                {% if session['user_id']==post[1] %}
+                <a href="/editpost/{{post[0]}}" class="btn btn-primary btn-sm" >Edit</a>
+                <a href="/delete/{{post[0]}}" class="btn btn-danger btn-sm" >Delete</a>
+                {% endif %}
                 <small  style="color:#444;float:right;padding:.25rem .5rem;">Posted on {{post[4].strftime('%d-%m-%y')}}</small>
             </div>
           </div><br>
@@ -73,9 +75,7 @@
           <div class="card">
             <div class="card-body">
               <h5> <a href="/post/single/{{post[0]}}" style="color:black;">@{{post[2]}}</a></h5>
-              <p style="color:#444;">{{post[3][:100]}}...
-
-              </p>
+              <p style="color:#444; white-space:pre-wrap;">{{post[3][:300]|safe}}...</p>
 
             </div>
             <div class="card-footer text-muted" style="padding:10px;">
@@ -87,28 +87,6 @@
               {% endif %}
                 <a href="/post/single/{{post[0]}}" class="btn btn-primary btn-sm">Comment</a>
                 <a href="/post/single/{{post[0]}}" class="btn btn-warning btn-sm" >View Post</a>
-                <small  style="color:#444;float:right;padding:.25rem .5rem;">Posted on {{post[4].strftime('%d-%m-%y')}}</small>
-            </div>
-          </div><br>
-        {% endfor %}
-      </div>
-      <div class="tab-pane fade" id="pills-mliked" role="tabpanel" aria-labelledby="pills-liked-tab">
-        {% for post in allposts %}
-          <div class="card">
-            <div class="card-body">
-              <h5> <a href="/post/single/{{post[0]}}" style="color:black;">@{{post[2]}}</a></h5>
-              <p style="color:#444;">{{post[3][:100]}}...
-                <a href="/post/single/{{post[0]}}">View Post</a>
-              </p>
-
-            </div>
-            <div class="card-footer text-muted" style="padding:10px;">
-              {% if is_liked(session["user_id"],post[0])==0 %}
-                <a href="/like/{{post[0]}}" class="btn btn-primary btn-sm" >Like</a>
-              {% else %}
-                <a href="/unlike/{{post[0]}}" class="btn btn-dark btn-sm" >Unlike</a>
-              {% endif %}
-                <a href="/post/single/{{post[0]}}" class="btn btn-primary btn-sm">Comment</a>
                 <small  style="color:#444;float:right;padding:.25rem .5rem;">Posted on {{post[4].strftime('%d-%m-%y')}}</small>
             </div>
           </div><br>
@@ -136,7 +114,8 @@
     $( "#postform" ).submit(function( event ) {
       event.preventDefault();
       $.post("/addpost", {post_data: $('#post_data').val()}, function(result){
-        alert(result);
+        // alert(result);
+        location.reload();
       });
 
     });
