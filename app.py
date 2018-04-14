@@ -1,8 +1,8 @@
-from flask import Flask, g, render_template, flash, redirect, url_for, abort, session, request
+from flask import Flask, g, render_template, flash, redirect, url_for, abort, session, request, make_response
 from flask_bcrypt import check_password_hash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from db import *
-
+import datetime
 app = Flask(__name__)
 app.secret_key = 'DevangIsTheGreatest'
 
@@ -11,8 +11,16 @@ app.secret_key = 'DevangIsTheGreatest'
 @app.route('/')
 def index():
     if session.get("login"):
+        print request.cookies
         return render_template('index.html',allposts = post_list(),fposts=post_list_follow(str(session["user_id"])))
     else:
+        print request.cookies
+        if request.cookies.get('login')=='1':
+            session["login"]=True
+            session["user_id"] = request.cookies.get('user_id')
+            session["username"] = request.cookies.get('username')
+            session["email"] = request.cookies.get('email')
+            return redirect('/')
         return redirect('/login')
 
 @app.route('/single/<post_id>')
@@ -48,7 +56,14 @@ def login_page():
             session["user_id"] = result[0]
             session["username"] = result[1]
             session["email"] = result[3]
-            return redirect('/')
+            resp = make_response(render_template('index.html',allposts = post_list(),fposts=post_list_follow(str(session["user_id"]))))
+            expire_date = datetime.datetime.now()
+            expire_date = expire_date + datetime.timedelta(days=90)
+            resp.set_cookie('user_id', str(result[0]), expires=expire_date)
+            resp.set_cookie('username', result[1], expires=expire_date)
+            resp.set_cookie('email', result[3], expires=expire_date)
+            resp.set_cookie('login','1', expires=expire_date)
+            return resp
     return render_template('login.html')
 
 @app.route('/logout')
@@ -57,6 +72,8 @@ def logout():
     session["user_id"] = ""
     session["username"] = ""
     session["email"] = ""
+    resp = make_response(render_template('login.html'))
+    resp.set_cookie('login','0')
     return render_template('login.html')
 
 
