@@ -22,6 +22,7 @@ def single(post_id):
 
 
 
+
 @app.route('/register', methods=["POST","GET"])
 def register_page():
     if request.method=='POST':
@@ -177,14 +178,6 @@ def delete(post_id):
     remove_post(post_id)
     return redirect( request.referrer)
 
-# @app.route('/logout')
-# def layout_page():
-#     return render_template('logout.html')
-#
-#
-# @app.route('/register')
-# def layout_page():
-#     return render_template('register.html')
 
 
 if __name__ == '__main__':
