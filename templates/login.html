@@ -19,12 +19,12 @@
             <div class=title>
               <h3 style="">Login</h3>
             </div>
-            <form>
+            <form action="/login" method="POST">
               <div class="login_form_body">
-                <input type="text" class="detail" placeholder="Enter Username">
+                <input type="text" name="email" class="detail" placeholder="Enter Username">
               </div>
               <div class="login_form_body">
-                <input type="password" class="detail" id="exampleInputPassword1" placeholder="Password" style="float: right;">
+                <input type="password" name="password" class="detail" placeholder="Password">
               </div>
               <button type="submit" class="btn btn-primary" style="margin-top: 5%">Login</button>
             </form>

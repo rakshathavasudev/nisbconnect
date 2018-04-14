@@ -1,6 +1,6 @@
 import mysql.connector
 from flask_bcrypt import generate_password_hash, check_password_hash
-def connectDB(host='192.168.0.100',database='codejam',user='root',password='1234'):
+def connectDB(host='localhost',database='codejam',user='root',password='1234'):
     return mysql.connector.connect(host=host,database=database,user=user,password=password)
 
 def disconnectDB(conn):
@@ -40,7 +40,7 @@ def user_login(email,password):
 
 def like_post(user_id,post_id):
     c = connectDB()
-    executeDB(c,"insert into likes values("+user_id+","+post_id+")",())
+    executeDB(c,"insert into likes values("+str(user_id)+","+str(post_id)+")",())
     disconnectDB(c)
     return True
 
@@ -48,10 +48,22 @@ def like_post(user_id,post_id):
 
 def unlike_post(user_id,post_id):
     c = connectDB()
-    executeDB(c,"delete from likes where user_id="+user_id+" and post_id="+post_id,())
+    executeDB(c,"delete from likes where user_id="+str(user_id)+" and post_id="+str(post_id),())
     disconnectDB(c)
     return True
 
+
+def is_liked(user_id,post_id):
+    c = connectDB()
+    result = queryDB(c,"select * from likes where user_id="+str(user_id)+" and post_id="+str(post_id))
+    disconnectDB(c)
+    return len(result)
+
+def get_likes(post_id):
+    c = connectDB()
+    result = queryDB(c,"select count(*) from likes where post_id="+str(post_id))
+    disconnectDB(c)
+    return result[0][0]
 # unlike_post('1','2')
 
 def add_post(user_id,post_data,group):
@@ -76,10 +88,29 @@ def edit_post(article, post_id):
     disconnectDB(c)
     return True
 
+
+def is_following(from_id,to_id):
+    c = connectDB()
+    result = queryDB(c,"select * from follow where from_id="+str(from_id)+" and to_id="+str(to_id))
+    disconnectDB(c)
+    return len(result)
+
+def get_followers(post_id):
+    c = connectDB()
+    result = queryDB(c,"select count(*) from likes where post_id="+post_id,())
+    disconnectDB(c)
+    return result[0][0]
+
+def get_following(post_id):
+    c = connectDB()
+    result = queryDB(c,"select count(*) from likes where post_id="+str(post_id),())
+    disconnectDB(c)
+    return result[0][0]
+
 # edit_post('Hello!!!!!', '2')
 def follow(from_id,to_id):
     c = connectDB()
-    executeDB(c,"insert into follow values("+from_id+","+to_id+")",())
+    executeDB(c,"insert into follow values("+str(from_id)+","+str(to_id)+")",())
     disconnectDB(c)
     return True
 
@@ -89,7 +120,7 @@ def follow(from_id,to_id):
 
 def unfollow(from_id,to_id):
     c = connectDB()
-    executeDB(c,"delete from follow where from_id="+from_id + " and to_id="+to_id,())
+    executeDB(c,"delete from follow where from_id="+str(from_id) + " and to_id="+str(to_id),())
     disconnectDB(c)
     return True
 
@@ -97,16 +128,27 @@ def unfollow(from_id,to_id):
 # unfollow('3', '2')
 # unfollow('4', '2')
 
-def post_list():
+def get_post(post_id):
     c = connectDB()
-    result = queryDB(c,"select * from posts where group=0")
+    result = queryDB(c,"select post_id, posts.user_id,username,article,date_time from posts,members where wgroup=0 and post_id="+post_id+" and posts.user_id=members.user_id order by date_time desc")
     disconnectDB(c)
     return result
 
+def post_list():
+    c = connectDB()
+    result = queryDB(c,"select post_id, posts.user_id,username,article,date_time from posts,members where wgroup=0 and posts.user_id=members.user_id order by date_time desc")
+    disconnectDB(c)
+    return result
+
+def post_list_follow(user_id):
+    c = connectDB()
+    result = queryDB(c,"select post_id, posts.user_id,username,article,date_time from posts,members where  wgroup=0 and posts.user_id=members.user_id and posts.user_id in (select to_id from follow where from_id="+user_id+") order by date_time desc")
+    disconnectDB(c)
+    return result
 
 def group_post_list(group):
     c = connectDB()
-    result = queryDB(c,"select * from posts where group="+group)
+    result = queryDB(c,"select post_id, posts.user_id,username,article,date_time from posts,members from posts,members where posts.user_id=members.user_id and wgroup="+group)
     disconnectDB(c)
     return result
 
@@ -114,21 +156,29 @@ def group_post_list(group):
 
 def follower_list(user_id):
     c = connectDB()
-    result = queryDB(c,"select username from members where id in (select from_id from follow where to_id="+user_id+")")
+    result = queryDB(c,"select user_id,username,email,branch,sem from members where user_id in (select from_id from follow where to_id="+user_id+")")
+    disconnectDB(c)
+    return result
+
+def following_list(user_id):
+    c = connectDB()
+    result = queryDB(c,"select user_id,username,email,branch,sem from members where user_id in (select to_id from follow where from_id="+user_id+")")
     disconnectDB(c)
     return result
 
 def member_info(user_id):
     c = connectDB()
-    result = queryDB(c,"select * from members where id="+user_id)
+    result = queryDB(c,"select * from members where user_id="+user_id)
     disconnectDB(c)
-    return result
+    return result[0]
 
 def members_list():
     c = connectDB()
     result = queryDB(c,"select user_id,username,email,branch,sem from members")
     disconnectDB(c)
     return result
+
+
 
 #print members_list()
 
