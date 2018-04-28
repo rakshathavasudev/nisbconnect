@@ -11,7 +11,6 @@ app.secret_key = 'DevangIsTheGreatest'
 @app.route('/')
 def index():
     if session.get("login"):
-        print request.cookies
         return render_template('index.html',allposts = post_list(),fposts=post_list_follow(str(session["user_id"])))
     else:
         print request.cookies
@@ -56,7 +55,7 @@ def login_page():
             session["user_id"] = result[0]
             session["username"] = result[1]
             session["email"] = result[3]
-            resp = make_response(render_template('index.html',allposts = post_list(),fposts=post_list_follow(str(session["user_id"]))))
+            resp = make_response(redirect('/'))
             expire_date = datetime.datetime.now()
             expire_date = expire_date + datetime.timedelta(days=90)
             resp.set_cookie('user_id', str(result[0]), expires=expire_date)
@@ -74,7 +73,7 @@ def logout():
     session["email"] = ""
     resp = make_response(render_template('login.html'))
     resp.set_cookie('login','0')
-    return render_template('login.html')
+    return resp
 
 
 

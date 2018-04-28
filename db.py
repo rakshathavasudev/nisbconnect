@@ -1,7 +1,11 @@
-import mysql.connector
+# import mysql.connector
+
+import psycopg2
+
 from flask_bcrypt import generate_password_hash, check_password_hash
 def connectDB(host='localhost',database='codejam',user='root',password='1234'):
-    return mysql.connector.connect(host=host,database=database,user=user,password=password)
+    return psycopg2.connect(database="codejam", user = "mridul", password = "1234", host = "127.0.0.1", port = "5432")
+    #return mysql.connector.connect(host=host,database=database,user=user,password=password)
 
 def disconnectDB(conn):
     conn.close()
@@ -165,7 +169,7 @@ def edit_post(article, post_id):
 
 def get_post(post_id):
     c = connectDB()
-    result = queryDB(c,"select post_id, posts.user_id,username,article,date_time from posts,members where wgroup=0 and post_id="+post_id+" and posts.user_id=members.user_id order by date_time desc")
+    result = queryDB(c,"select post_id, posts.user_id,username,article,date_time from posts,members where post_id="+post_id+" and posts.user_id=members.user_id order by date_time desc")
     disconnectDB(c)
     return result
 
@@ -266,7 +270,7 @@ def leave_group(group_id,user_id):
             remove_group(group_id)
             return 0
         members = ",".join(members)
-        result = executeDB(c,"update `groups` set members=%s where group_id=%s" ,(members,group_id))
+        result = executeDB(c,"update  groups  set members=%s where group_id=%s" ,(members,group_id))
         disconnectDB(c)
         return 1
 
@@ -275,6 +279,8 @@ def create_group(name,desc,user_id):
     rowid = executeDB(c,"insert into groups values(0,%s,%s,%s)",(name,desc,str(user_id)))
     disconnectDB(c)
     return str(rowid)
+
+
 
 def remove_group(group_id):
     c = connectDB()
@@ -312,53 +318,51 @@ def flush_user_likes(user_id):
 
 def init_DB():
     c = connectDB()
-    sql = '''CREATE TABLE if not exists`follow` (
-    `from_id` int(11) NOT NULL,
-    `to_id` int(11) NOT NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=latin1'''
+    sql = '''CREATE TABLE if not exists follow  (
+     from_id   int NOT NULL,
+     to_id   int NOT NULL
+    )'''
     executeDB(c,sql,())
-    sql = '''CREATE TABLE `likes` (
-    `user_id` int(11) NOT NULL AUTO_INCREMENT,
-    `post_id` int(11) NOT NULL,
-    KEY `user_id` (`user_id`),
-    KEY `post_id` (`post_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1'''
+    sql = '''CREATE TABLE  likes  (
+     user_id   int NOT NULL,
+     post_id   int NOT NULL
+    ) '''
     executeDB(c,sql,())
     sql ='''
-    CREATE TABLE if not exists`members` (
-      `user_id` int(11) NOT NULL AUTO_INCREMENT,
-      `username` text NOT NULL,
-      `password` text NOT NULL,
-      `email` text NOT NULL,
-      `bio` text NOT NULL,
-      `dob` date NOT NULL,
-      `ieee_no` varchar(11) NOT NULL,
-      `branch` text NOT NULL,
-      `sem` varchar(11) NOT NULL,
-      PRIMARY KEY (`user_id`)
-      ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1
+    CREATE TABLE if not exists members  (
+       user_id   serial primary key,
+       username  text NOT NULL,
+       password  text NOT NULL,
+       email  text NOT NULL,
+       bio  text NOT NULL,
+       dob  date NOT NULL,
+       ieee_no  varchar(11) NOT NULL,
+       branch  text NOT NULL,
+       sem  varchar(11) NOT NULL
+      )
     '''
     executeDB(c,sql,())
-    sql='''CREATE TABLE if not exists`messages` (
-      `message_id` int(11) NOT NULL AUTO_INCREMENT,
-      `from_id` int(11) NOT NULL,
-      `to_id` int(11) NOT NULL,
-      `message_data` text NOT NULL,
-      `date_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      PRIMARY KEY (`message_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=95 DEFAULT CHARSET=latin1'''
+    sql='''CREATE TABLE if not exists messages  (
+       message_id   serial primary key,
+       from_id   int NOT NULL,
+       to_id   int NOT NULL,
+       message_data  text NOT NULL,
+       date_time  timestamp
+    ) '''
     executeDB(c,sql,())
-    sql='''CREATE TABLE if not exists`posts` (
-      `user_id` int(11) NOT NULL,
-      `wgroup` int(11) NOT NULL,
-      `post_id` int(11) NOT NULL AUTO_INCREMENT,
-      `article` mediumtext NOT NULL,
-      `date_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      PRIMARY KEY (`post_id`),
-      KEY `user_id` (`user_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1'''
+    sql='''CREATE TABLE if not exists posts  (
+       user_id   int NOT NULL,
+       wgroup   int NOT NULL,
+       post_id   serial primary key,
+       article  text NOT NULL,
+       date_time  timestamp
+    )'''
+    executeDB(c,sql,())
+    sql='''create table groups (group_id serial primary key,name text, description text,members text)'''
     executeDB(c,sql,())
     disconnectDB(c)
+
+# init_DB()
 
 #print members_list()
 
@@ -366,23 +370,23 @@ def init_DB():
 
 # Tables
 # members
-#     id	int(11) Auto Increment
+#     id	 int Auto Increment
 #     username	text
 #     password	text
 #     email	text
 #     bio	text
 #     dob	date
-#     ieee_no	int(11)
+#     ieee_no	 int
 #     branch	text
-#     sem	int(11)
+#     sem	 int
 
 # likes
-    # user_id	int(11) Auto Increment
-    # post_id	int(11)
+    # user_id	 int Auto Increment
+    # post_id	 int
 
 # Post
-    # user_id	int(11)
-    # post_id	int(11) Auto Increment
+    # user_id	 int
+    # post_id	 int Auto Increment
     # post_title	text
     # article	mediumtext
     # date_time	timestamp [CURRENT_TIMESTAMP]

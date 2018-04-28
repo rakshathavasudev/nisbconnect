@@ -7,12 +7,14 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-sm-0">
+      {% if session["login"]==True %}
       <li class="nav-item">
         <a class="nav-link" href="/members/all">Members <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/group/list">Groups</a>
       </li>
+      {% endif %}
     </ul>
 
     <ul class="navbar-nav ml-auto">
